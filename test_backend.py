@@ -1,14 +1,9 @@
-import backend
+import sqlite3
 
-#backend.add_employee("chayma chliyah", "IT", 55000, "2025-01-15")
-#print("Employee added successfully!")
+conn = sqlite3.connect("employees.db")
+cursor = conn.cursor()
 
-#backend.delete_employee(2)
-#print("Employee deleted successfully!")
-
-
-#employees = backend.get_employees()
-#print("Employees:", employees)
-
-results = backend.search_employee("John")
-print("Search Results:", results)
+cursor.execute("SELECT * FROM users")
+users = cursor.fetchall()
+print(users)
+conn.close()

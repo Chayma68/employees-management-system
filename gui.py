@@ -3,22 +3,63 @@ from tkinter import messagebox, ttk
 import backend
 
 #main window
-ctk.set_appearance_mode("System")
+ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
 root.title("Employee Management System")
 root.geometry("900x600")
 
+# Detect system theme
+theme_mode = ctk.get_appearance_mode()  # Returns "Light" or "Dark"
+
+# Define colors based on system theme
+if theme_mode == "Dark":
+    bg_color = "#333333"  # Dark gray background
+    text_color = "white"  # White text
+    selected_color = "#1E90FF"  # Blue selected row
+    heading_bg = "#444444"  # Dark gray headers
+    heading_text = "white"
+    tree_bg = "#222222"  # Darker tree background
+    row_bg_odd = "#333333"  # Odd row color
+    row_bg_even = "#292929"  # Even row color
+else:
+    bg_color = "white"  # Light background
+    text_color = "black"  # Black text
+    selected_color = "#4A90E2"  # Blue selection
+    heading_bg = "#E0E0E0"  # Light gray headers
+    heading_text = "black"
+    tree_bg = "white"
+    row_bg_odd = "#F0F0F0"
+    row_bg_even = "white"
+
+# Create Treeview style
+style = ttk.Style()
+style.theme_use("clam")  # Better customization support
+
+style.configure("Treeview",
+                background=tree_bg,
+                foreground=text_color,
+                rowheight=25,
+                fieldbackground=tree_bg)
+
+# Change selected row color
+style.map("Treeview", background=[("selected", selected_color)])
+
+# Change header style
+style.configure("Treeview.Heading",
+                font=("Arial", 12, "bold"),
+                background=heading_bg,
+                foreground=heading_text)
 #Frame Layouts
 
 top_frame = ctk.CTkFrame(root, fg_color="#3262a8", height=80)  #for the header
 top_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-middle_frame = ctk.CTkFrame(root, fg_color="white")
+middle_frame = ctk.CTkFrame(root)
 middle_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
 
-bottom_frame = ctk.CTkFrame(root, fg_color="white")
+bottom_frame = ctk.CTkFrame(root)
 bottom_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=10)
 
 root.grid_rowconfigure(1, weight=1)
@@ -37,6 +78,22 @@ search_Entry = ctk.CTkEntry(middle_frame, font=("Arial", 12), width=200)
 search_Entry.grid(row=0, column=1, padx=5, pady=5)
 
 #TreeView
+style = ttk.Style()
+
+style.configure("Treeview",
+                background=bg_color,
+                foreground=text_color,
+                rowheight=25,
+                fieldbackground=bg_color)
+
+# Change selected row color
+style.map("Treeview", background=[("selected", selected_color)])
+
+# Change header style
+style.configure("Treeview.Heading",
+                font=("Arial", 12, "bold"),
+                background=heading_bg,
+                foreground=heading_text)
 columns = ("ID", "Name", "Department", "Salary", "Hire Date")
 tree = ttk.Treeview(bottom_frame, columns=columns, show="headings", height=10)
 
@@ -83,18 +140,38 @@ def add_employee():
 
     if not name or not department or not salary or not hire_date:
         messagebox.showerror("Error", "All fields are required!")
+
         return
     try:
         salary = float(salary)
         backend.add_employee(name, department, salary, hire_date)
         update_table()
         messagebox.showinfo("Success", "Employee added successfully!")
+        for entry in entries.values():
+            entry.delete(0, "end")
+
     except ValueError:
         messagebox.showerror("Error", "Invalid salary format")
 
+def on_tree_select(event):
+    selected_item = tree.selection()
+    if selected_item:
+        emp_values = tree.item(selected_item, "values")
+        if emp_values:
+            entries["name"].delete(0, "end")
+            entries["name"].insert(0, emp_values[1])
+            entries["department"].delete(0, "end")
+            entries["department"].insert(0, emp_values[2])
+            entries["salary"].delete(0, "end")
+            entries["salary"].insert(0, emp_values[3])
+            entries["hire_date"].delete(0, "end")
+            entries["hire_date"].insert(0, emp_values[4])
+
+tree.bind("<<TreeviewSelect>>", on_tree_select)  # Bind function to Treeview selection
 
 def edit_employee():
     selected_item = tree.selection()
+    print(f"Selected Item: {selected_item}")
     if not selected_item:
         messagebox.showerror("ERROR", "Please Select an employee to edit!")
         return
@@ -124,8 +201,8 @@ def delete_employee():
     messagebox.showinfo("Success", "Employee deleted successfully!")
 
 
-button_frame = ctk.CTkFrame(bottom_frame, fg_color="white")
-button_frame.grid(row=1, column=0, columnspan=3, sticky="ew", pady=10)
+button_frame = ctk.CTkFrame(root)
+button_frame.grid(row=4, column=0, columnspan=3, sticky="ew", pady=10, padx=10)
 
 button_frame.grid_columnconfigure(0, weight=1)
 button_frame.grid_columnconfigure(1, weight=1)

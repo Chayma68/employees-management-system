@@ -1,7 +1,5 @@
 import sqlite3
 
-import database
-
 
 #Function for the connection to the dataBase
 def connection():
@@ -69,4 +67,28 @@ def search_employee(name):
     return employees
 
 
+def search_user_email(email):
+    conn = connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email LIKE ?", (email,))
+    employees = cursor.fetchall()
+    conn.close()
+    return employees
 
+
+def user_password(email):
+    conn = connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT password FROM users WHERE email = ?", (email,))
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result else None
+
+
+def user_role_byemail(email):
+    conn = connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT role FROM users WHERE email = ?", (email,))
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result else None
