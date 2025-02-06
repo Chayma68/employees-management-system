@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox, ttk
 import backend
+from PIL import Image, ImageTk
 
 #main window
 ctk.set_appearance_mode("light")
@@ -11,23 +12,22 @@ root.title("Employee Management System")
 root.geometry("900x600")
 
 # Detect system theme
-theme_mode = ctk.get_appearance_mode()  # Returns "Light" or "Dark"
+theme_mode = ctk.get_appearance_mode()
 
-# Define colors based on system theme
 if theme_mode == "Dark":
-    bg_color = "#333333"  # Dark gray background
-    text_color = "white"  # White text
-    selected_color = "#1E90FF"  # Blue selected row
-    heading_bg = "#444444"  # Dark gray headers
+    bg_color = "#333333"
+    text_color = "white"
+    selected_color = "#1E90FF"
+    heading_bg = "#444444"
     heading_text = "white"
-    tree_bg = "#222222"  # Darker tree background
-    row_bg_odd = "#333333"  # Odd row color
-    row_bg_even = "#292929"  # Even row color
+    tree_bg = "#222222"
+    row_bg_odd = "#333333"
+    row_bg_even = "#292929"
 else:
-    bg_color = "white"  # Light background
-    text_color = "black"  # Black text
-    selected_color = "#4A90E2"  # Blue selection
-    heading_bg = "#E0E0E0"  # Light gray headers
+    bg_color = "white"
+    text_color = "black"
+    selected_color = "#4A90E2"
+    heading_bg = "#E0E0E0"
     heading_text = "black"
     tree_bg = "white"
     row_bg_odd = "#F0F0F0"
@@ -35,7 +35,7 @@ else:
 
 # Create Treeview style
 style = ttk.Style()
-style.theme_use("clam")  # Better customization support
+style.theme_use("clam")
 
 style.configure("Treeview",
                 background=tree_bg,
@@ -53,7 +53,7 @@ style.configure("Treeview.Heading",
                 foreground=heading_text)
 #Frame Layouts
 
-top_frame = ctk.CTkFrame(root, fg_color="#3262a8", height=80)  #for the header
+top_frame = ctk.CTkFrame(root, fg_color="#3262a8", height=80)
 top_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
 middle_frame = ctk.CTkFrame(root)
@@ -76,6 +76,28 @@ search_label = ctk.CTkLabel(middle_frame, text="Search Employee By Name:", font=
 search_label.grid(row=0, column=0, padx=5, pady=5)
 search_Entry = ctk.CTkEntry(middle_frame, font=("Arial", 12), width=200)
 search_Entry.grid(row=0, column=1, padx=5, pady=5)
+
+# Load and resize the disconnect icon
+disconnect_icon = Image.open("images/disconnect_icon.png")
+disconnect_icon = disconnect_icon.resize((30, 30), Image.Resampling.LANCZOS)  # Adjust size
+disconnect_icon = ImageTk.PhotoImage(disconnect_icon)
+
+
+# Function to disconnect the user
+def disconnect():
+    confirm = messagebox.askyesno("Logout", "Are you sure you want to disconnect?")
+    if confirm:
+        root.destroy()
+
+
+# Create a white frame for better button appearance
+disconnect_frame = ctk.CTkFrame(middle_frame, fg_color="white", width=50, height=50)
+disconnect_frame.grid(row=0, column=3, padx=5, pady=5)
+
+# Create a clickable label with the icon
+disconnect_label = ctk.CTkLabel(disconnect_frame, image=disconnect_icon, text="", cursor="hand2")
+disconnect_label.pack(padx=5, pady=5)
+disconnect_label.bind("<Button-1>", lambda e: disconnect())  # Bind click event
 
 #TreeView
 style = ttk.Style()
@@ -153,6 +175,7 @@ def add_employee():
     except ValueError:
         messagebox.showerror("Error", "Invalid salary format")
 
+
 def on_tree_select(event):
     selected_item = tree.selection()
     if selected_item:
@@ -167,7 +190,9 @@ def on_tree_select(event):
             entries["hire_date"].delete(0, "end")
             entries["hire_date"].insert(0, emp_values[4])
 
+
 tree.bind("<<TreeviewSelect>>", on_tree_select)  # Bind function to Treeview selection
+
 
 def edit_employee():
     selected_item = tree.selection()
@@ -208,11 +233,12 @@ button_frame.grid_columnconfigure(0, weight=1)
 button_frame.grid_columnconfigure(1, weight=1)
 button_frame.grid_columnconfigure(2, weight=1)
 
-ctk.CTkButton(button_frame, text="Add Employee", command=add_employee, width=150).grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+ctk.CTkButton(button_frame, text="Add Employee", command=add_employee, width=150).grid(row=0, column=0, padx=10, pady=5,
+                                                                                       sticky="ew")
 ctk.CTkButton(button_frame, text="Edit Employee", command=edit_employee, width=150).grid(row=0, column=1, padx=10,
-                                                                                        pady=5, sticky="ew")
+                                                                                         pady=5, sticky="ew")
 ctk.CTkButton(button_frame, text="Delete Employee", command=delete_employee, width=150).grid(row=0, column=2, padx=10,
-                                                                                            pady=5, sticky="ew")
+                                                                                             pady=5, sticky="ew")
 
 update_table()
 root.mainloop()
